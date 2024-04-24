@@ -5,6 +5,7 @@ class TtsService:
     """
     A class for converting text to speech using an OpenAI client and a configuration.
     """
+
     def __init__(self, async_client, config):
         """
         Initializes the text-to-speech service with an OpenAI client and a configuration.
@@ -26,12 +27,9 @@ class TtsService:
         Returns:
         - The path to the generated MP3 file.
         """
-        path_to_file = str(uuid.uuid4()) + '.mp3'
-        with self.async_client\
-                             .audio.speech\
-                             .with_streaming_response\
-                             .create(model=self.config['model'], 
-                                     voice=self.config['voice'], 
-                                     input=text) as model: 
+        path_to_file = str(uuid.uuid4()) + ".mp3"
+        with self.async_client.audio.speech.with_streaming_response.create(
+            model=self.config["model"], voice=self.config["voice"], input=text
+        ) as model:
             model.stream_to_file(path_to_file)
         return path_to_file

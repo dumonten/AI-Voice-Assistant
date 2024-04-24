@@ -1,8 +1,8 @@
-
 class SttService:
     """
     A class for converting speech to text using an OpenAI client and a configuration.
     """
+
     def __init__(self, async_client, config):
         """
         Initializes the speech-to-text service with an OpenAI client and a configuration.
@@ -24,10 +24,8 @@ class SttService:
         Returns:
         - The transcription of the speech as text.
         """
-        audio_file = open(path_to_file, 'rb')
+        audio_file = open(path_to_file, "rb")
         transcription = self.async_client.audio.transcriptions.create(
-            model=self.config['model'], 
-            file=audio_file, 
-            response_format="text"
+            model=self.config["model"], file=audio_file, response_format="text"
         )
         return transcription

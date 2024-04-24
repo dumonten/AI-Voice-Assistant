@@ -1,4 +1,3 @@
-
 class AssistantService:
     """
     A class for interacting with an AI assistant service using an OpenAI client and a configuration.
@@ -16,11 +15,11 @@ class AssistantService:
         self.config = config
 
         self.assistant = self.async_client.beta.assistants.create(
-            name=self.config['name'],
-            instructions=self.config['assistant_instructions'],
-            model=self.config['model'],
+            name=self.config["name"],
+            instructions=self.config["assistant_instructions"],
+            model=self.config["model"],
         )
-        
+
         self.thread = self.async_client.beta.threads.create()
 
     def request(self, promt):
@@ -37,26 +36,24 @@ class AssistantService:
         - Exception: If the run status is not 'completed' or if no assistant message is found.
         """
         user_message = self.async_client.beta.threads.messages.create(
-            thread_id=self.thread.id,
-            role='user',
-            content=promt
+            thread_id=self.thread.id, role="user", content=promt
         )
 
         run = self.async_client.beta.threads.runs.create_and_poll(
             thread_id=self.thread.id,
             assistant_id=self.assistant.id,
-            instructions=self.config['run_instructions']
+            instructions=self.config["run_instructions"],
         )
 
-        if run.status == 'completed':
+        if run.status == "completed":
             messages = self.async_client.beta.threads.messages.list(
                 thread_id=self.thread.id
             )
-                
-            if messages.data and messages.data[0].role == 'assistant': 
+
+            if messages.data and messages.data[0].role == "assistant":
                 ans = messages.data[0].content[0].text.value
                 return ans
-            else: 
-                raise Exception('No assistant message found')
+            else:
+                raise Exception("No assistant message found")
         else:
             raise Exception(f'Run status is not <completed>, it\'s "{run.status}".')
