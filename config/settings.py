@@ -13,6 +13,11 @@ class Settings(BaseSettings):
 
     BOT_KEY: str = Field(env="BOT_KEY")
     OPENAI_KEY: str = Field(env="OPENAI_KEY")
+    PG_USER: str = Field(env="PG_USER")
+    PG_PASSWD: str = Field(env="PG_PASSWD")
+    PG_HOST: str = Field(env="PG_HOST")
+    PG_PORT: str = Field(env="PG_PORT")
+    PG_DB: str = Field(env="PG_DB")
 
     @property
     def bot(self) -> Bot:

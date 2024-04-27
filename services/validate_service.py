@@ -4,6 +4,11 @@ from openai import AsyncOpenAI
 
 
 class ValidateService:
+    """
+    ValidateService is a class responsible for validating key values identified by the user.
+    It uses an asynchronous client to interact with an external service for validation.
+    """
+
     # A dictionary containing configuration options for the speech service, such as the model to use.
     config = {
         "model": "gpt-4-turbo",

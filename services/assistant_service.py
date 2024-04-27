@@ -3,6 +3,9 @@ import time
 
 from openai import AsyncOpenAI
 
+from repositories import UserRepository
+from utils import Strings
+
 from .validate_service import ValidateService
 
 
@@ -132,13 +135,21 @@ class AssistantService:
             for tool in run.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "save_values":
                     isSaved = await cls.save_values(
-                        " ".join(json.loads(tool.function.arguments)["key_values"])
+                        user_id=user_id,
+                        key_values=", ".join(
+                            json.loads(tool.function.arguments)["key_values"]
+                        ),
                     )
+
+                    if isSaved:
+                        output = Strings.KEY_VALUES_ARE_DEFINED
+                    else:
+                        output = Strings.KEY_VALUES_ARE_NOT_DEFINED
 
                     tool_outputs.append(
                         {
                             "tool_call_id": tool.id,
-                            "output": str(isSaved),
+                            "output": output,
                         }
                     )
 
@@ -159,7 +170,37 @@ class AssistantService:
             raise ValueError(f'Run status is not <completed>, it\'s "{run.status}".')
 
     @classmethod
-    async def save_values(cls, values: str) -> bool:
-        prompt = [{"role": "user", "content": values}]
+    async def save_values(cls, user_id: int, key_values: str) -> bool:
+        """
+        Asynchronously saves or updates user values in the database after validation.
+
+        This class method first validates the provided key_values using a validation service.
+        If the validation is successful, it attempts to update the user's values in the database.
+        If the user does not exist (indicated by a ValueError), it saves the user's values as a new record.
+        The method returns a boolean indicating the success of the validation process.
+
+        Parameters:
+        - cls (type): The class that this method is bound to.
+        - user_id (int): The unique identifier for the user.
+        - key_values (str): The key-value pairs to be saved or updated for the user.
+
+        Returns:
+        - bool: True if the validation is successful, False otherwise.
+        """
+
+        prompt = [{"role": "user", "content": key_values}]
         isCorrect = await ValidateService.validate_key_values(prompt)
+
+        if isCorrect:
+            # If validation is successful, attempt to update the user's values
+            user_repo = UserRepository()
+            try:
+                await user_repo.update_user_values(
+                    user_id=user_id, key_values=key_values
+                )
+                print("User values updated successfully.")
+            except ValueError as ve:
+                # If the user does not exist, save the user's values as a new record
+                await user_repo.save_user_values(user_id=user_id, key_values=key_values)
+                print("User values saved successfully.")
         return isCorrect

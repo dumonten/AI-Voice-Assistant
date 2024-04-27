@@ -20,6 +20,7 @@ async def main():
     Returns:
     - None
     """
+
     dp = Dispatcher()
 
     bot = settings.bot
