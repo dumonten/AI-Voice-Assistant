@@ -1,35 +1,59 @@
 import uuid
 
+from openai import AsyncOpenAI
+
 
 class TtsService:
     """
     A class for converting text to speech using an OpenAI client and a configuration.
     """
 
-    def __init__(self, async_client, config):
+    # A dictionary containing configuration options for the speech service, such as the model and voice to use.
+    config = {
+        "model": "tts-1",
+        "voice": "nova",
+    }
+
+    # An OpenAI client for making requests to the speech service.
+    async_client = None
+
+    @classmethod
+    def initialize(cls, async_client: AsyncOpenAI):
         """
-        Initializes the text-to-speech service with an OpenAI client and a configuration.
+        Initializes the TtsService with an instance of AsyncOpenAI.
 
         Parameters:
-        - async_client: An OpenAI client for making requests to the speech service.
-        - config: A dictionary containing configuration options for the speech service, such as the model and voice to use.
+        - async_client (AsyncOpenAI): An instance of AsyncOpenAI to use for making requests to the speech service.
         """
-        self.async_client = async_client
-        self.config = config
 
-    def text_to_speech(self, text):
+        cls.async_client = async_client
+
+    @classmethod
+    async def text_to_speech(cls, text: str) -> str:
         """
-        Converts the given text to speech and saves it as an MP3 file.
+        Converts the provided text to speech and saves it as an MP3 file.
 
         Parameters:
-        - text: The text to be converted to speech.
+        - text (str): The text to convert to speech.
 
         Returns:
-        - The path to the generated MP3 file.
+        - str: The path to the generated MP3 file.
+
+        Raises:
+        - ValueError: If the async_client is not initialized before calling this method.
         """
+
+        if cls.async_client is None:
+            raise ValueError(
+                "async_client must be initialized before calling speech_to_text."
+            )
+
+        # Generate a unique filename for the MP3 file.
         path_to_file = str(uuid.uuid4()) + ".mp3"
-        with self.async_client.audio.speech.with_streaming_response.create(
-            model=self.config["model"], voice=self.config["voice"], input=text
+        # Create the speech audio file using the configured model and voice.
+        async with cls.async_client.audio.speech.with_streaming_response.create(
+            model=cls.config["model"], voice=cls.config["voice"], input=text
         ) as model:
-            model.stream_to_file(path_to_file)
+            # Stream the speech audio to the generated file.
+            await model.stream_to_file(path_to_file)
         return path_to_file

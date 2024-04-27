@@ -1,28 +1,50 @@
 import asyncio
 
-from aiogram import Bot, Dispatcher
-from openai import OpenAI
+from aiogram import Dispatcher
 
 from config import settings
-from utils import MessageHandler
+from routers import (
+    help_command_router,
+    start_command_router,
+    text_message_router,
+    voice_message_router,
+)
+from services import AssistantService, SttService, TtsService
 
 
 async def main():
-    async_client = OpenAI(api_key=settings.OPENAI_KEY)
+    """
+    Initializes the bot, sets up routers for handling different types of messages and commands,
+    and starts the bot's polling loop.
 
-    bot = Bot(token=settings.BOT_KEY)
+    Returns:
+    - None
+    """
     dp = Dispatcher()
 
-    message_handler = MessageHandler(bot=bot, async_client=async_client)
-    message_handler.setup_handlers()
-    message_handler.include_router(dp=dp)
+    bot = settings.bot
+    async_client = settings.async_client
 
-    print("Bot is started")
+    # Initialize services with the async client.
+    await AssistantService.initialize(async_client=async_client)
+    SttService.initialize(async_client=async_client)
+    TtsService.initialize(async_client=async_client)
+
+    # Include routers for handling different types of messages and commands.
+    dp.include_router(start_command_router)
+    dp.include_router(help_command_router)
+    dp.include_router(text_message_router)
+    dp.include_router(voice_message_router)
+
+    print("Bot is started.")
+    # Start the bot's polling loop.
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     try:
+        # Run the main function asynchronously.
         asyncio.run(main())
-    except KeyboardInterrupt or SystemExit:
-        print("The bot's work has been interrupted")
+    except (KeyboardInterrupt, SystemExit):
+        # Handle keyboard interrupts and system exits gracefully.
+        print("The bot's work has been interrupted.")

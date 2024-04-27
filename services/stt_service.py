@@ -1,31 +1,54 @@
+from openai import AsyncOpenAI
+
+
 class SttService:
     """
     A class for converting speech to text using an OpenAI client and a configuration.
     """
 
-    def __init__(self, async_client, config):
+    # A dictionary containing configuration options for the speech service, such as the model to use.
+    config = {
+        "model": "whisper-1",
+    }
+
+    # An OpenAI client for making requests to the speech service.
+    async_client = None
+
+    @classmethod
+    def initialize(cls, async_client: AsyncOpenAI):
         """
-        Initializes the speech-to-text service with an OpenAI client and a configuration.
+        Initializes the SttService with an instance of AsyncOpenAI.
 
         Parameters:
-        - async_client: An OpenAI client for making requests to the speech service.
-        - config: A dictionary containing configuration options for the speech service, such as the model to use.
+        - async_client (AsyncOpenAI): An instance of AsyncOpenAI to use for making requests to the speech service.
         """
-        self.async_client = async_client
-        self.config = config
 
-    def speech_to_text(self, path_to_file):
+        cls.async_client = async_client
+
+    @classmethod
+    async def speech_to_text(cls, path_to_file: str) -> str:
         """
         Converts the speech in the given audio file to text.
 
         Parameters:
-        - path_to_file: The path to the audio file containing the speech to be converted.
+        - path_to_file (str): The path to the audio file containing the speech to be converted.
 
         Returns:
-        - The transcription of the speech as text.
+        - str: The transcription of the speech as text.
+
+        Raises:
+        - ValueError: If the async_client is not initialized before calling this method.
         """
-        audio_file = open(path_to_file, "rb")
-        transcription = self.async_client.audio.transcriptions.create(
-            model=self.config["model"], file=audio_file, response_format="text"
-        )
+
+        if cls.async_client is None:
+            raise ValueError(
+                "async_client must be initialized before calling speech_to_text."
+            )
+
+        # Open the audio file in binary mode for reading.
+        with open(path_to_file, "rb") as audio_file:
+            # Convert the speech in the audio file to text using the configured model.
+            transcription = await cls.async_client.audio.transcriptions.create(
+                model=cls.config["model"], file=audio_file, response_format="text"
+            )
         return transcription
