@@ -51,4 +51,5 @@ class SttService:
             transcription = await cls.async_client.audio.transcriptions.create(
                 model=cls.config["model"], file=audio_file, response_format="text"
             )
+
         return transcription

@@ -9,7 +9,7 @@ from routers import (
     text_message_router,
     voice_message_router,
 )
-from services import AssistantService, SttService, TtsService
+from services import AssistantService, SttService, TtsService, ValidateService
 
 
 async def main():
@@ -27,6 +27,7 @@ async def main():
 
     # Initialize services with the async client.
     await AssistantService.initialize(async_client=async_client)
+    ValidateService.initialize(async_client=async_client)
     SttService.initialize(async_client=async_client)
     TtsService.initialize(async_client=async_client)
 

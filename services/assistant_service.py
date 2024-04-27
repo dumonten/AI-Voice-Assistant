@@ -1,4 +1,9 @@
+import json
+import time
+
 from openai import AsyncOpenAI
+
+from .validate_service import ValidateService
 
 
 class AssistantService:
@@ -10,15 +15,47 @@ class AssistantService:
         "name": "Voice AI Assistant",
         "model": "gpt-4-turbo",
         "assistant_instructions": (
-            "Provide clear, concise, and engaging answers "
-            "based only on the provided data. Try to answer "
-            "all the user's questions."
+            "You should engage in a conversation with the user to understand their personal values, "
+            "beliefs, and what they consider important in life. You should ask open-ended questions "
+            "to encourage the user to share their thoughts and feelings. The goal is to gather insights "
+            "into the user's core values, which could include aspects such as family, career, personal growth, "
+            "health, and community. You should listen carefully to the user's responses and use them to identify "
+            "patterns or recurring themes that reflect the user's life values."
         ),
         "run_instructions": "",
+        "tools": [
+            {
+                "type": "function",
+                "function": {
+                    "name": "save_values",
+                    "description": (
+                        "Get the key life values of the user."
+                        "After you determine the basic values of the user, call this function."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "key_values": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": (
+                                    "An array of strings representing the user's identified key life values."
+                                    "Each string in the array should be a single value that the user has "
+                                    "identified as important to their life. Record the values in English."
+                                ),
+                            }
+                        },
+                        "required": ["key_values"],
+                    },
+                },
+            },
+        ],
     }
 
     async_client = None
+
     assistant = None
+
     threads = {}
 
     @classmethod
@@ -35,6 +72,7 @@ class AssistantService:
             name=cls.config["name"],
             instructions=cls.config["assistant_instructions"],
             model=cls.config["model"],
+            tools=cls.config["tools"],
         )
 
     @classmethod
@@ -69,6 +107,11 @@ class AssistantService:
         - Exception: If the run status is not 'completed' or if no assistant message is found.
         """
 
+        if cls.async_client is None:
+            raise ValueError(
+                "async_client must be initialized before calling speech_to_text."
+            )
+
         if user_id not in cls.threads:
             await cls.create_thread(user_id)
 
@@ -84,11 +127,29 @@ class AssistantService:
             instructions=cls.config["run_instructions"],
         )
 
+        if run.status == "requires_action":
+            tool_outputs = []
+            for tool in run.required_action.submit_tool_outputs.tool_calls:
+                if tool.function.name == "save_values":
+                    isSaved = await cls.save_values(
+                        " ".join(json.loads(tool.function.arguments)["key_values"])
+                    )
+
+                    tool_outputs.append(
+                        {
+                            "tool_call_id": tool.id,
+                            "output": str(isSaved),
+                        }
+                    )
+
+                run = await cls.async_client.beta.threads.runs.submit_tool_outputs_and_poll(
+                    thread_id=thread_id, run_id=run.id, tool_outputs=tool_outputs
+                )
+
         if run.status == "completed":
             messages = await cls.async_client.beta.threads.messages.list(
                 thread_id=thread_id
             )
-
             if messages.data and messages.data[0].role == "assistant":
                 ans = messages.data[0].content[0].text.value
                 return ans
@@ -96,3 +157,9 @@ class AssistantService:
                 raise ValueError("No assistant message found")
         else:
             raise ValueError(f'Run status is not <completed>, it\'s "{run.status}".')
+
+    @classmethod
+    async def save_values(cls, values: str) -> bool:
+        prompt = [{"role": "user", "content": values}]
+        isCorrect = await ValidateService.validate_key_values(prompt)
+        return isCorrect

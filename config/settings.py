@@ -22,6 +22,7 @@ class Settings(BaseSettings):
         Returns:
         - Bot: An instance of the Bot class.
         """
+
         if not hasattr(self, "_bot"):
             self._bot = Bot(token=self.BOT_KEY)
         return self._bot
@@ -34,6 +35,7 @@ class Settings(BaseSettings):
         Returns:
         - AsyncOpenAI: An instance of the AsyncOpenAI class.
         """
+
         if not hasattr(self, "_async_client"):
             self._async_client = AsyncOpenAI(api_key=self.OPENAI_KEY)
         return self._async_client
