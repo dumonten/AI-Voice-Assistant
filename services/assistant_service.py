@@ -187,6 +187,7 @@ class AssistantService:
         Returns:
         - bool: True if the validation is successful, False otherwise.
         """
+        print(f"------> UserId: {user_id}. User KeyValues: {key_values}")
 
         prompt = [{"role": "user", "content": key_values}]
         isCorrect = await ValidateService.validate_key_values(prompt)
@@ -198,9 +199,14 @@ class AssistantService:
                 await user_repo.update_user_values(
                     user_id=user_id, key_values=key_values
                 )
-                print("User values updated successfully.")
+                print("------> User values updated successfully.")
             except ValueError as ve:
-                # If the user does not exist, save the user's values as a new record
-                await user_repo.save_user_values(user_id=user_id, key_values=key_values)
-                print("User values saved successfully.")
+                try:
+                    # If the user does not exist, save the user's values as a new record
+                    await user_repo.save_user_values(
+                        user_id=user_id, key_values=key_values
+                    )
+                    print("------> User values saved successfully.")
+                except ValueError as ve:
+                    print(f"------> Error in DB: {ve}.")
         return isCorrect
