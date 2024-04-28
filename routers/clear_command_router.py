@@ -9,7 +9,7 @@ router = Router()
 
 
 @router.message(Command("clear"))
-async def cmd_help(message: Message):
+async def cmd_clear(message: Message):
     """
     Handles the "/clear" command by clearing the context.
 
