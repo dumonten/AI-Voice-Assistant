@@ -6,8 +6,6 @@ from config import settings
 
 SQLALCHEMY_DATABASE_URL = f"postgresql+asyncpg://{settings.PG_USER}:{settings.PG_PASSWD}@{settings.PG_HOST}:{settings.PG_PORT}/{settings.PG_DB}"
 
-print(SQLALCHEMY_DATABASE_URL)
-
 # Create an async engine
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
