@@ -187,6 +187,7 @@ class AssistantService:
         Returns:
         - bool: True if the validation is successful, False otherwise.
         """
+
         print(f"------> UserId: {user_id}. User KeyValues: {key_values}")
 
         prompt = [{"role": "user", "content": key_values}]
