@@ -22,6 +22,7 @@ async def text_message(message: Message):
     Returns:
     - None
     """
+
     await message.answer(Strings.WAIT_MSG)
 
     try:

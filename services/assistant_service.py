@@ -211,3 +211,15 @@ class AssistantService:
                 except ValueError as ve:
                     print(f"------> Error in DB: {ve}.")
         return isCorrect
+
+    @classmethod
+    async def clear_context(cls, user_id: int):
+        """
+        Deletes a thread for a user or conversation.
+
+        Parameters:
+        - user_id (int): A unique identifier for the user or conversation.
+        """
+
+        if user_id in cls.threads:
+            del cls.threads[user_id]

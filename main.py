@@ -4,6 +4,7 @@ from aiogram import Dispatcher
 
 from config import settings
 from routers import (
+    clear_command_router,
     help_command_router,
     start_command_router,
     text_message_router,
@@ -35,6 +36,7 @@ async def main():
     # Include routers for handling different types of messages and commands.
     dp.include_router(start_command_router)
     dp.include_router(help_command_router)
+    dp.include_router(clear_command_router)
     dp.include_router(text_message_router)
     dp.include_router(voice_message_router)
 

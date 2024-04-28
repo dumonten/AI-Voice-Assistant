@@ -1,3 +1,4 @@
+from .clear_command_router import router as clear_command_router
 from .help_command_router import router as help_command_router
 from .start_command_router import router as start_command_router
 from .text_message_router import router as text_message_router

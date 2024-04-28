@@ -32,6 +32,7 @@ class ValidateService:
                                     "Conditions for a 'True' Value:\n"
                                     "- No Nonsensical Words: The identified meanings should not include meaningless or 'crazy' words.\n"
                                     "- Mutual Exclusivity: Values that are mutually exclusive should not be identified together; for instance, 'love' and 'hate' are contradictory and should not be present together.\n"
+                                    "- Logical Coherence: The values should logically cohere with each other. For instance, if 'freedom' is identified, it should not be accompanied by values that inherently require control or structure, such as 'obedience' or 'discipline'."
                                     "- No Overly General Values: The system should refrain from defining overly broad or generalized values that do not provide a specific insight into the user's preferences or beliefs, such as 'good' or 'bad,' which may be too vague to be useful.\n"
                                     "Conditions for a 'False' Value:\n"
                                     "- Anything That Does Not Meet the Conditions for 'True'.\n"

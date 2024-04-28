@@ -26,6 +26,7 @@ async def voice_message(message: Message):
     Returns:
     - None
     """
+
     file = await bot.get_file(message.voice.file_id)
     file_on_disk = pathlib.Path("", f"{message.voice.file_id}.ogg")
     await bot.download_file(file.file_path, destination=file_on_disk)

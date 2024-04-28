@@ -18,4 +18,5 @@ async def cmd_start(message: Message):
     Returns:
     - None
     """
+
     await message.reply(Strings.HELLO_MSG)
