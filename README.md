@@ -1,7 +1,5 @@
 # AI-Voice-Assistant
 
-# Voice AI Bot Project
-
 ## Table of Contents
 
 - [Introduction](#introduction)
