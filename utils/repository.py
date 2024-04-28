@@ -4,10 +4,8 @@ from sqlalchemy.orm import sessionmaker
 
 from config import settings
 
-SQLALCHEMY_DATABASE_URL = f"postgresql+asyncpg://{settings.PG_USER}:{settings.PG_PASSWD}@{settings.PG_HOST}:{settings.PG_PORT}/{settings.PG_DB}"
-
 # Create an async engine
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+engine = create_async_engine(settings.DATABASE_URL, echo=True)
 
 # Create a sessionmaker bound to the async engine
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
