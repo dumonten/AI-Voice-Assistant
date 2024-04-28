@@ -195,6 +195,4 @@ pyrightconfig.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
-alembic/versions/c9833ce0062e_initial_tables.py
-alembic.ini
-alembic/README
+
