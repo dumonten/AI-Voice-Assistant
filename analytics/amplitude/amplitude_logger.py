@@ -1,4 +1,5 @@
 from amplitude import Amplitude, BaseEvent
+from loguru import logger
 
 from config import settings
 
@@ -28,11 +29,14 @@ class AmplitudeLogger:
         - None
         """
 
-        user_id = str(user_id)
-        self.client.track(
-            BaseEvent(
-                user_id=user_id,
-                event_type=event_type,
-                event_properties={"info": event_properties},
+        try:
+            user_id = str(user_id)
+            self.client.track(
+                BaseEvent(
+                    user_id=user_id,
+                    event_type=event_type,
+                    event_properties={"info": event_properties},
+                )
             )
-        )
+        except Exception as e:
+            logger.info(f"Error in amplitude logger: {e}")
