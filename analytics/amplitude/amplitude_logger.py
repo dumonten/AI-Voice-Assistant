@@ -5,7 +5,7 @@ from config import settings
 
 class AmplitudeLogger:
     """
-    Initializes AmplitudeLogger with a client for Amplitude API.
+    Logger with a client for Amplitude API.
     """
 
     def __init__(self):
@@ -19,10 +19,13 @@ class AmplitudeLogger:
         """
         Tracks an event in Amplitude with user ID, event type, and properties.
 
-        Args:
+        Parameters:
             user_id (int): User ID.
             event_type (str): Event type.
             event_properties (str): Event properties in JSON-like string.
+
+        Returns:
+        - None
         """
 
         user_id = str(user_id)

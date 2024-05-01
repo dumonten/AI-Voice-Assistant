@@ -8,10 +8,8 @@ class AnalyticsService:
     Manages assistant operations with Amplitude analytics using a thread pool.
     """
 
-    # ThreadPoolExecutor for asynchronous event tracking.
     executor = ThreadPoolExecutor(max_workers=5)
 
-    # AmplitudeLogger instance for tracking events.
     tracker = AmplitudeLogger()
 
     @classmethod
@@ -23,6 +21,9 @@ class AnalyticsService:
             user_id (int): User ID.
             event_type (str): Event type.
             event_properties (str): Event properties in JSON-like string.
+
+        Returns:
+        - None
         """
 
         cls.executor.submit(

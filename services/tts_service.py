@@ -24,6 +24,9 @@ class TtsService:
 
         Parameters:
         - async_client (AsyncOpenAI): An instance of AsyncOpenAI to use for making requests to the speech service.
+
+        Returns:
+        - None
         """
 
         cls.async_client = async_client
@@ -48,12 +51,9 @@ class TtsService:
                 "async_client must be initialized before calling speech_to_text."
             )
 
-        # Generate a unique filename for the MP3 file.
         path_to_file = str(uuid.uuid4()) + ".mp3"
-        # Create the speech audio file using the configured model and voice.
         async with cls.async_client.audio.speech.with_streaming_response.create(
             model=cls.config["model"], voice=cls.config["voice"], input=text
         ) as model:
-            # Stream the speech audio to the generated file.
             await model.stream_to_file(path_to_file)
         return path_to_file

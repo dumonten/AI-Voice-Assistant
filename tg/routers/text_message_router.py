@@ -32,20 +32,19 @@ async def text_message(message: Message):
     await message.answer(Strings.WAIT_MSG)
 
     try:
-        # Request a response from the AssistantService.
         response = await AssistantService.request(message.from_user.id, message.text)
 
         await message.answer(response)
 
-        # Convert the response text to speech.
-        response_audio_file_path = await TtsService.text_to_speech(response)
-        # Prepare the audio file for sending.
-        response = FSInputFile(response_audio_file_path)
-        # Send the speech audio back to the user.
-        await message.answer_voice(response)
-
-        # Clean up the temporary audio file.
-        os.remove(response_audio_file_path)
+        try:
+            response_audio_file_path = await TtsService.text_to_speech(response)
+            response = FSInputFile(response_audio_file_path)
+            await message.answer_voice(response)
+        except Exception as e:
+            logger.info(
+                f"Error in voice_message_router while converting answer to audio: {e}"
+            )
+        finally:
+            os.remove(response_audio_file_path)
     except Exception as e:
-        # Handle any exceptions that occur during the process.
         logger.info(f"Error in text_message_router: {e}")

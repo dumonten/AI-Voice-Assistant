@@ -40,25 +40,22 @@ async def voice_message(message: Message):
     await bot.download_file(file.file_path, destination=file_on_disk)
 
     try:
-        # Convert the voice message to text.
         text = await SttService.speech_to_text(file_on_disk)
-        # Process the text with the AssistantService.
         response = await AssistantService.request(message.from_user.id, text)
 
         await message.answer(response)
 
-        # Convert the response text to speech.
-        response_audio_file_path = await TtsService.text_to_speech(response)
-        # Prepare the audio file for sending.
-        response = FSInputFile(response_audio_file_path)
-        # Send the speech audio back to the user.
-        await message.answer_voice(response)
-
-        # Clean up the temporary audio file.
-        os.remove(response_audio_file_path)
+        try:
+            response_audio_file_path = await TtsService.text_to_speech(response)
+            response = FSInputFile(response_audio_file_path)
+            await message.answer_voice(response)
+        except Exception as e:
+            logger.info(
+                f"Error in voice_message_router while converting answer to audio: {e}"
+            )
+        finally:
+            os.remove(response_audio_file_path)
     except Exception as e:
-        # Handle any exceptions that occur during the process.
         logger.info(f"Error in voice_message_router: {e}")
     finally:
-        # Clean up the downloaded voice message file.
         os.remove(file_on_disk)

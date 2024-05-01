@@ -21,6 +21,9 @@ class SttService:
 
         Parameters:
         - async_client (AsyncOpenAI): An instance of AsyncOpenAI to use for making requests to the speech service.
+
+        Returns:
+        - None
         """
 
         cls.async_client = async_client
@@ -45,9 +48,7 @@ class SttService:
                 "async_client must be initialized before calling speech_to_text."
             )
 
-        # Open the audio file in binary mode for reading.
         with open(path_to_file, "rb") as audio_file:
-            # Convert the speech in the audio file to text using the configured model.
             transcription = await cls.async_client.audio.transcriptions.create(
                 model=cls.config["model"], file=audio_file, response_format="text"
             )

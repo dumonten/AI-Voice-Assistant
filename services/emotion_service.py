@@ -54,6 +54,9 @@ class EmotionService:
 
         Parameters:
         - async_client (AsyncOpenAI): An instance of AsyncOpenAI to use for making requests to the speech service.
+
+        Returns:
+        - None
         """
 
         cls.async_client = async_client

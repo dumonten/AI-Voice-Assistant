@@ -58,7 +58,6 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        # Run the main function asynchronously.
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         # Handle keyboard interrupts and system exits gracefully.

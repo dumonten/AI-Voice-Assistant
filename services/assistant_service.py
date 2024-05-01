@@ -72,6 +72,9 @@ class AssistantService:
 
         Parameters:
         - async_client (AsyncOpenAI): An instance of AsyncOpenAI to use for making requests to the assistant service.
+
+        Returns:
+        - None
         """
 
         cls.async_client = async_client
@@ -203,7 +206,6 @@ class AssistantService:
         is_correct = await ValidateService.validate_key_values(key_values)
 
         if is_correct:
-            # If validation is successful, attempt to update the user's values
             user_repo = UserRepository()
             try:
                 await user_repo.update_user_values(
@@ -230,6 +232,9 @@ class AssistantService:
 
         Parameters:
         - user_id (int): A unique identifier for the user or conversation.
+
+        Returns:
+        - None
         """
 
         if user_id in cls.threads:

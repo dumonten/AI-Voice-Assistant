@@ -5,7 +5,7 @@ from utils.repository import Base
 
 class UserModel(Base):
     """
-    UserModel represents the structure of the 'user' table in the database.
+    Represents the structure of the 'user' table in the database.
     It inherits from the Base class, which is a declarative base for SQLAlchemy models.
     This class defines the columns and their types that will be used to create the 'user' table.
     """

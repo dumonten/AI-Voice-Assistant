@@ -38,25 +38,25 @@ async def image(message: Message):
     file_on_disk = pathlib.Path("", f"{message.photo[-1].file_id}.jpg")
     await bot.download_file(file.file_path, destination=file_on_disk)
 
-    emotion_state = await EmotionService.identify_emotions(file_on_disk)
-    os.remove(file_on_disk)
-
     try:
-        # Request a response from the AssistantService.
+        emotion_state = await EmotionService.identify_emotions(file_on_disk)
         response = await AssistantService.request(
             message.from_user.id, Strings.EMOTION_STATE_USER_ANS + emotion_state
         )
 
         await message.answer(response)
 
-        # Convert the response text to speech.
-        response_audio_file_path = await TtsService.text_to_speech(response)
-        # Prepare the audio file for sending.
-        response = FSInputFile(response_audio_file_path)
-        # Send the speech audio back to the user.
-        await message.answer_voice(response)
-        # Clean up the temporary audio file.
-        os.remove(response_audio_file_path)
+        try:
+            response_audio_file_path = await TtsService.text_to_speech(response)
+            response = FSInputFile(response_audio_file_path)
+            await message.answer_voice(response)
+        except Exception as e:
+            logger.info(
+                f"Error in voice_message_router while converting answer to audio: {e}"
+            )
+        finally:
+            os.remove(response_audio_file_path)
     except Exception as e:
-        # Handle any exceptions that occur during the process.
         logger.info(f"Error in image_router: {e}")
+    finally:
+        os.remove(file_on_disk)
