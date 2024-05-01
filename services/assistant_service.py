@@ -134,14 +134,14 @@ class AssistantService:
             tool_outputs = []
             for tool in run.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "save_values":
-                    isSaved = await cls.save_values(
+                    is_saved = await cls.save_values(
                         user_id=user_id,
                         key_values=", ".join(
                             json.loads(tool.function.arguments)["key_values"]
                         ),
                     )
 
-                    if isSaved:
+                    if is_saved:
                         output = Strings.KEY_VALUES_ARE_DEFINED
                     else:
                         output = Strings.KEY_VALUES_ARE_NOT_DEFINED
@@ -191,9 +191,9 @@ class AssistantService:
         print(f"------> UserId: {user_id}. User KeyValues: {key_values}")
 
         prompt = [{"role": "user", "content": key_values}]
-        isCorrect = await ValidateService.validate_key_values(prompt)
+        is_correct = await ValidateService.validate_key_values(prompt)
 
-        if isCorrect:
+        if is_correct:
             # If validation is successful, attempt to update the user's values
             user_repo = UserRepository()
             try:
@@ -210,7 +210,7 @@ class AssistantService:
                     print("------> User values saved successfully.")
                 except ValueError as ve:
                     print(f"------> Error in DB: {ve}.")
-        return isCorrect
+        return is_correct
 
     @classmethod
     async def clear_context(cls, user_id: int):

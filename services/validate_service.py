@@ -26,7 +26,7 @@ class ValidateService:
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "isCorrect": {
+                            "is_correct": {
                                 "type": "boolean",
                                 "description": (
                                     "Conditions for a 'True' Value:\n"
@@ -40,7 +40,7 @@ class ValidateService:
                                 ),
                             },
                         },
-                        "required": ["isCorrect"],
+                        "required": ["is_correct"],
                     },
                 },
             },
@@ -94,7 +94,7 @@ class ValidateService:
             )
             output = response.choices[0].message.tool_calls[0]
             arguments_dict = json.loads(output.function.arguments)
-            return arguments_dict["isCorrect"]
+            return arguments_dict["is_correct"]
         except Exception as e:
             print("Unable to generate ChatCompletion response")
             print(f"Exception: {e}")
