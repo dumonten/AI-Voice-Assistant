@@ -4,9 +4,11 @@ import pathlib
 from aiogram import F
 from aiogram.dispatcher.router import Router
 from aiogram.types import FSInputFile, Message
+from loguru import logger
 
+from analytics.types import EventType
 from config import settings
-from services import AssistantService, SttService, TtsService
+from services import AnalyticsService, AssistantService, SttService, TtsService
 from utils import Strings
 
 router = Router()
@@ -26,6 +28,10 @@ async def voice_message(message: Message):
     Returns:
     - None
     """
+
+    AnalyticsService.track_event(
+        user_id=message.from_user.id, event_type=EventType.VoiceMessageSent
+    )
 
     await message.answer(Strings.WAIT_MSG)
 
@@ -52,7 +58,7 @@ async def voice_message(message: Message):
         os.remove(response_audio_file_path)
     except Exception as e:
         # Handle any exceptions that occur during the process.
-        print(f"Error: {e}")
+        logger.info(f"Error in voice_message_router: {e}")
     finally:
         # Clean up the downloaded voice message file.
         os.remove(file_on_disk)

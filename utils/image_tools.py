@@ -6,8 +6,7 @@ def encode_image(image_path: str) -> str:
     Encodes an image file into a base64 string.
 
     This function reads an image file from the given path, encodes it into a base64 string,
-    and returns the encoded string. The base64 string can be used to transmit the image over
-    networks or store it in databases.
+    and returns the encoded string.
 
     Parameters:
     - image_path (str): The file path of the image to be encoded.

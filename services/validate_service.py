@@ -1,5 +1,6 @@
 import json
 
+from loguru import logger
 from openai import AsyncOpenAI
 
 
@@ -114,6 +115,7 @@ class ValidateService:
             arguments_dict = json.loads(output.function.arguments)
             return arguments_dict["is_correct"]
         except Exception as e:
-            print("Unable to generate ChatCompletion response in ValidateService.")
-            print(f"Exception: {e}")
+            logger.info(
+                f"Unable to generate ChatCompletion response in ValidateService. Exception: {e}"
+            )
             return False

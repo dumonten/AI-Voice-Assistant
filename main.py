@@ -1,6 +1,7 @@
 import asyncio
 
 from aiogram import Dispatcher
+from loguru import logger
 
 from config import settings
 from services import (
@@ -49,7 +50,8 @@ async def main():
     dp.include_router(text_message_router)
     dp.include_router(voice_message_router)
 
-    print("Bot is started.")
+    logger.info("Bot started")
+
     # Start the bot's polling loop.
     await dp.start_polling(bot)
 
@@ -60,4 +62,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         # Handle keyboard interrupts and system exits gracefully.
-        print("The bot's work has been interrupted.")
+        logger.info("Bot stopped")

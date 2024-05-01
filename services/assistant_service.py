@@ -1,11 +1,13 @@
 import json
-import time
 
+from loguru import logger
 from openai import AsyncOpenAI
 
+from analytics.types import EventType
 from repositories import UserRepository
 from utils import Strings
 
+from .analytics_service import AnalyticsService
 from .validate_service import ValidateService
 
 
@@ -190,7 +192,13 @@ class AssistantService:
         - bool: True if the validation is successful, False otherwise.
         """
 
-        print(f"------> UserId: {user_id}. User KeyValues: {key_values}")
+        AnalyticsService.track_event(
+            user_id=user_id, event_type=EventType.KeyValueRevealed
+        )
+
+        logger.info(
+            f"Detected user key values: user_id[{user_id}] key_values[{key_values}]"
+        )
 
         is_correct = await ValidateService.validate_key_values(key_values)
 
@@ -201,16 +209,18 @@ class AssistantService:
                 await user_repo.update_user_values(
                     user_id=user_id, key_values=key_values
                 )
-                print("------> User values updated successfully.")
+                logger.info(f"Key values for user_id[{user_id}] updated successfully")
             except ValueError as ve:
                 try:
                     # If the user does not exist, save the user's values as a new record
                     await user_repo.save_user_values(
                         user_id=user_id, key_values=key_values
                     )
-                    print("------> User values saved successfully.")
+                    logger.info(f"Key values for user_id[{user_id}] saved successfully")
                 except ValueError as ve:
-                    print(f"------> Error in DB: {ve}.")
+                    logger.info(
+                        f"Error in database while saving  user_id[{user_id}] key_vaues: {ve}"
+                    )
         return is_correct
 
     @classmethod

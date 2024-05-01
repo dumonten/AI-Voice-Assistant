@@ -4,9 +4,11 @@ import pathlib
 from aiogram import F
 from aiogram.dispatcher.router import Router
 from aiogram.types import FSInputFile, Message
+from loguru import logger
 
+from analytics.types import EventType
 from config import settings
-from services import AssistantService, EmotionService, TtsService
+from services import AnalyticsService, AssistantService, EmotionService, TtsService
 from utils import Strings
 
 router = Router()
@@ -25,6 +27,10 @@ async def image(message: Message):
     Returns:
     - None
     """
+
+    AnalyticsService.track_event(
+        user_id=message.from_user.id, event_type=EventType.ImageSent
+    )
 
     await message.answer(Strings.WAIT_MSG)
 
@@ -53,5 +59,4 @@ async def image(message: Message):
         os.remove(response_audio_file_path)
     except Exception as e:
         # Handle any exceptions that occur during the process.
-        print(f"Error: {e}")
-        return
+        logger.info(f"Error in image_router: {e}")

@@ -1,6 +1,7 @@
 import json
 from typing import List
 
+from loguru import logger
 from openai import AsyncOpenAI
 
 from utils import Emotions, encode_image
@@ -113,6 +114,7 @@ class EmotionService:
             arguments_dict = json.loads(output.function.arguments)
             return arguments_dict["emotion"]
         except Exception as e:
-            print("Unable to generate ChatCompletion response in EmotionService.")
-            print(f"Exception: {e}")
+            logger.info(
+                f"Unable to generate ChatCompletion response in EmotionService. Exception: {e}"
+            )
             return False
