@@ -2,7 +2,7 @@ import asyncio
 
 from aiogram import Dispatcher
 from loguru import logger
-
+from asyncio.exceptions import CancelledError
 from config import settings
 from services import (
     AssistantService,
@@ -59,6 +59,6 @@ async def main():
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt, SystemExit, CancelledError):
         # Handle keyboard interrupts and system exits gracefully.
         logger.info("Bot stopped")
