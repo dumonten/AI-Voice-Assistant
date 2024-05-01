@@ -14,6 +14,7 @@ class AssistantService:
     A class for interacting with an AI assistant using an OpenAI client and a configuration.
     """
 
+    # A dictionary containing configuration options for the speech service, such as the model to use.
     config = {
         "name": "Voice AI Assistant",
         "model": "gpt-4-turbo",
@@ -55,6 +56,7 @@ class AssistantService:
         ],
     }
 
+    # An OpenAI client for making requests to the speech service.
     async_client = None
 
     assistant = None
@@ -190,8 +192,7 @@ class AssistantService:
 
         print(f"------> UserId: {user_id}. User KeyValues: {key_values}")
 
-        prompt = [{"role": "user", "content": key_values}]
-        is_correct = await ValidateService.validate_key_values(prompt)
+        is_correct = await ValidateService.validate_key_values(key_values)
 
         if is_correct:
             # If validation is successful, attempt to update the user's values

@@ -20,7 +20,7 @@ class ValidateService:
                     "description": (
                         "Use this function to accurately determine the correctness of the key life values identified by the user. "
                         "If multiple key values are present, they will be delineated by commas. "
-                        "The outcome of this evaluation is a boolean value, "
+                        "The param of the function is a boolean value, "
                         "indicating whether the data is accurate (True) or not (False)."
                     ),
                     "parameters": {
@@ -62,7 +62,7 @@ class ValidateService:
         cls.async_client = async_client
 
     @classmethod
-    async def validate_key_values(cls, messages: str) -> bool:
+    async def validate_key_values(cls, key_values: str) -> bool:
         """
         Validates the key values identified by the user.
 
@@ -83,6 +83,23 @@ class ValidateService:
             )
 
         try:
+
+            messages = [
+                {
+                    "role": "system",
+                    "content": "Determine the correctness of the key life values identified by the user.",
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": key_values,
+                        },
+                    ],
+                },
+            ]
+
             response = await cls.async_client.chat.completions.create(
                 model=cls.config["model"],
                 messages=messages,
@@ -92,10 +109,11 @@ class ValidateService:
                     "function": {"name": "validate_value"},
                 },
             )
+
             output = response.choices[0].message.tool_calls[0]
             arguments_dict = json.loads(output.function.arguments)
             return arguments_dict["is_correct"]
         except Exception as e:
-            print("Unable to generate ChatCompletion response")
+            print("Unable to generate ChatCompletion response in ValidateService.")
             print(f"Exception: {e}")
             return False

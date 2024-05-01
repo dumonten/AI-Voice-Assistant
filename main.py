@@ -3,14 +3,21 @@ import asyncio
 from aiogram import Dispatcher
 
 from config import settings
-from routers import (
+from services import (
+    AssistantService,
+    EmotionService,
+    SttService,
+    TtsService,
+    ValidateService,
+)
+from tg.routers import (
     clear_command_router,
     help_command_router,
+    image_router,
     start_command_router,
     text_message_router,
     voice_message_router,
 )
-from services import AssistantService, SttService, TtsService, ValidateService
 
 
 async def main():
@@ -32,11 +39,13 @@ async def main():
     ValidateService.initialize(async_client=async_client)
     SttService.initialize(async_client=async_client)
     TtsService.initialize(async_client=async_client)
+    EmotionService.initialize(async_client=async_client)
 
     # Include routers for handling different types of messages and commands.
     dp.include_router(start_command_router)
     dp.include_router(help_command_router)
     dp.include_router(clear_command_router)
+    dp.include_router(image_router)
     dp.include_router(text_message_router)
     dp.include_router(voice_message_router)
 

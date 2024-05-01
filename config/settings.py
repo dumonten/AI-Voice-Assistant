@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     BOT_KEY: str = Field(env="BOT_KEY")
     OPENAI_KEY: str = Field(env="OPENAI_KEY")
+    AMPLITUDE_KEY: str = Field(env="AMPLITUDE_KEY")
     DATABASE_URL: str = Field(env="DATABASE_URL")
 
     @property
