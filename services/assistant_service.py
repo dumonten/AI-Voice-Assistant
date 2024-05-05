@@ -327,12 +327,24 @@ class AssistantService:
 
     @classmethod
     async def get_sources(cls):
-        ans = f"There are **{len(cls.vector_storages)}** vector storages:\n"
+        """
+        Retrieves and formats information about all vector storages.
+
+        This method constructs a formatted string detailing each vector storage's name and associated file names.
+
+        Returns:
+        - str: A formatted string listing all vector storages and their file names.
+        """
+
+        ans = f"There are <b>{len(cls.vector_storages)}</b> vector storages:\n"
         for vs in cls.vector_storages:
             file_names = "\n\t".join(
-                [os.path.basename(file_path) for file_path in vs.file_paths]
+                [
+                    f"'<i>{os.path.basename(file_path)}</i>'"
+                    for file_path in vs.file_paths
+                ]
             )
-            ans += f"name: __{vs.name}__\n\t" + file_names
+            ans += f"name: '<i>{vs.name}</i>'\n\t" + file_names
         return ans
 
     @classmethod

@@ -26,4 +26,4 @@ async def cmd_get_sources(message: Message):
 
     response = await AssistantService.get_sources()
 
-    await message.reply(response)
+    await message.reply(text=response, parse_mode='html')
