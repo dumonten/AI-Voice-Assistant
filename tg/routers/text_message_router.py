@@ -36,6 +36,7 @@ async def text_message(message: Message):
 
         await message.answer(response)
 
+        
         try:
             response_audio_file_path = await TtsService.text_to_speech(response)
             response = FSInputFile(response_audio_file_path)

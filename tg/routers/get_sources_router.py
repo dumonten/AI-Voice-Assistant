@@ -9,10 +9,10 @@ from utils import Strings
 router = Router()
 
 
-@router.message(Command("clear"))
-async def cmd_clear(message: Message):
+@router.message(Command("get_sorces"))
+async def cmd_get_sorces(message: Message):
     """
-    Handles the "/clear" command by clearing the context.
+    Handles the "/get_sources" command by getting num of file sources of the assistant.
 
     Parameters:
     - message (Message): The message object received from the user.
@@ -22,7 +22,10 @@ async def cmd_clear(message: Message):
     """
 
     AnalyticsService.track_event(
-        user_id=message.from_user.id, event_type=EventType.ClearCommand
+        user_id=message.from_user.id, event_type=EventType.GetSourcesCommand
     )
 
-    await message.reply(Strings.CLEAR_MSG)
+    response = await AssistantService.get_sources()
+
+    await message.reply(response)
+

@@ -1,4 +1,5 @@
 import json
+import os
 
 from loguru import logger
 from openai import AsyncOpenAI
@@ -28,8 +29,9 @@ class AssistantService:
             "health, and community. You should listen carefully to the user's responses and use them to identify "
             "patterns or recurring themes that reflect the user's life values."
         ),
-        "run_instructions": "",
+        "run_instructions": "If you are asked a question about anxiety: look for the answer in the files.",
         "tools": [
+            {"type": "file_search"},
             {
                 "type": "function",
                 "function": {
@@ -60,10 +62,10 @@ class AssistantService:
 
     # An OpenAI client for making requests to the speech service.
     async_client = None
-
     assistant = None
-
     threads = {}
+    vector_store = None
+    file_paths = [".//.//Anxiety.docx"]
 
     @classmethod
     async def initialize(cls, async_client: AsyncOpenAI):
@@ -83,6 +85,20 @@ class AssistantService:
             instructions=cls.config["assistant_instructions"],
             model=cls.config["model"],
             tools=cls.config["tools"],
+        )
+        cls.vector_store = await cls.async_client.beta.vector_stores.create(
+            name="Statements about Anxiety"
+        )
+        file_streams = [open(path, "rb") for path in cls.file_paths]
+
+        file_batch = (
+            await cls.async_client.beta.vector_stores.file_batches.upload_and_poll(
+                vector_store_id=cls.vector_store.id, files=file_streams
+            )
+        )
+        cls.assistant = await cls.async_client.beta.assistants.update(
+            assistant_id=cls.assistant.id,
+            tool_resources={"file_search": {"vector_store_ids": [cls.vector_store.id]}},
         )
 
     @classmethod
@@ -168,8 +184,22 @@ class AssistantService:
             messages = await cls.async_client.beta.threads.messages.list(
                 thread_id=thread_id
             )
+
             if messages.data and messages.data[0].role == "assistant":
-                ans = messages.data[0].content[0].text.value
+                message_content = messages.data[0].content[0].text
+                citations = []
+                annotations = message_content.annotations
+                for index, annotation in enumerate(annotations):
+                    if file_citation := getattr(annotation, "file_citation", None):
+                        cited_file = await cls.async_client.files.retrieve(
+                            file_citation.file_id
+                        )
+                        citations.append(f"[{index}] {cited_file.filename}")
+                    if index < len(citations):
+                        message_content.value = message_content.value.replace(
+                            annotation.text, f" [Источник: {citations[index]}]"
+                        )
+                ans = message_content.value
                 return ans
             else:
                 raise ValueError("No assistant message found")
@@ -224,6 +254,15 @@ class AssistantService:
                         f"Error in database while saving  user_id[{user_id}] key_vaues: {ve}"
                     )
         return is_correct
+
+    @classmethod
+    async def get_sources(cls):
+        num = cls.vector_store.file_counts
+        print(num)
+        for f in cls.vector_store: 
+            print(f.index)
+        return "100"
+    
 
     @classmethod
     async def clear_context(cls, user_id: int):

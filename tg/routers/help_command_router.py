@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from analytics.types import EventType
-from services import AnalyticsService
+from services import AnalyticsService, AssistantService, TtsService
 from utils import Strings
 
 router = Router()

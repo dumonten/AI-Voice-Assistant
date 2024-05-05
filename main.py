@@ -1,8 +1,9 @@
 import asyncio
+from asyncio.exceptions import CancelledError
 
 from aiogram import Dispatcher
 from loguru import logger
-from asyncio.exceptions import CancelledError
+
 from config import settings
 from services import (
     AssistantService,
@@ -13,6 +14,7 @@ from services import (
 )
 from tg.routers import (
     clear_command_router,
+    get_sources_router,
     help_command_router,
     image_router,
     start_command_router,
@@ -43,6 +45,7 @@ async def main():
     EmotionService.initialize(async_client=async_client)
 
     # Include routers for handling different types of messages and commands.
+    dp.include_router(get_sources_router)
     dp.include_router(start_command_router)
     dp.include_router(help_command_router)
     dp.include_router(clear_command_router)
