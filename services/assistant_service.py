@@ -17,6 +17,72 @@ class AssistantService:
     A class for interacting with an AI assistant using an OpenAI client and a configuration.
     """
 
+    class AssistantServiceVectorStorage:
+        """
+        A class for managing vector storage related to an AI assistant's tasks.
+        This includes creating vector stores, uploading files, and updating the assistant's tool resources.
+        """
+
+        def __init__(self):
+            """
+            Initializes the vector storage manager with empty or default values.
+            """
+
+            self.vector_store = None
+            self.file_batch = None
+            self.file_paths = []
+            self.name = ""
+            self.instructions = ""
+
+        async def initialization(self, name, file_paths, instructions):
+            """
+            Initializes the vector storage manager with specific configurations and uploads files.
+
+            Parameters:
+            - name (str): The name of the vector store to create.
+            - file_paths (list[str]): A list of file paths to upload to the vector store.
+            - instructions (str): Instructions or metadata associated with the vector store.
+
+            Returns:
+            None
+
+            Raises:
+            - ValueError: If the file batch upload does not complete successfully or if the number of uploaded files does not match the expected count.
+            """
+
+            self.name = name
+            self.file_paths = file_paths
+            self.instructions = instructions
+
+            self.vector_store = (
+                await AssistantService.async_client.beta.vector_stores.create(
+                    name=self.name
+                )
+            )
+
+            file_streams = [open(path, "rb") for path in self.file_paths]
+
+            self.file_batch = await AssistantService.async_client.beta.vector_stores.file_batches.upload_and_poll(
+                vector_store_id=self.vector_store.id, files=file_streams
+            )
+
+            AssistantService.assistant = (
+                await AssistantService.async_client.beta.assistants.update(
+                    assistant_id=AssistantService.assistant.id,
+                    tool_resources={
+                        "file_search": {"vector_store_ids": [self.vector_store.id]}
+                    },
+                )
+            )
+
+            if not (
+                self.file_batch.status == "completed"
+                and self.file_batch.file_counts.completed == len(self.file_paths)
+            ):
+                raise ValueError(
+                    f"Something went wrong when uploading files to vector storage with name: {self.name} in assistant."
+                )
+
     # A dictionary containing configuration options for the speech service, such as the model to use.
     config = {
         "name": "Voice AI Assistant",
@@ -29,7 +95,7 @@ class AssistantService:
             "health, and community. You should listen carefully to the user's responses and use them to identify "
             "patterns or recurring themes that reflect the user's life values."
         ),
-        "run_instructions": "If you are asked a question about anxiety: look for the answer in the files.",
+        "run_instructions": "",
         "tools": [
             {"type": "file_search"},
             {
@@ -62,10 +128,12 @@ class AssistantService:
 
     # An OpenAI client for making requests to the speech service.
     async_client = None
+
     assistant = None
+
     threads = {}
-    vector_store = None
-    file_paths = [".//.//Anxiety.docx"]
+
+    vector_storages = []
 
     @classmethod
     async def initialize(cls, async_client: AsyncOpenAI):
@@ -80,25 +148,27 @@ class AssistantService:
         """
 
         cls.async_client = async_client
+
         cls.assistant = await cls.async_client.beta.assistants.create(
             name=cls.config["name"],
             instructions=cls.config["assistant_instructions"],
             model=cls.config["model"],
             tools=cls.config["tools"],
         )
-        cls.vector_store = await cls.async_client.beta.vector_stores.create(
-            name="Statements about Anxiety"
-        )
-        file_streams = [open(path, "rb") for path in cls.file_paths]
 
-        file_batch = (
-            await cls.async_client.beta.vector_stores.file_batches.upload_and_poll(
-                vector_store_id=cls.vector_store.id, files=file_streams
+        try:
+            anxiety_storage = cls.AssistantServiceVectorStorage()
+            await anxiety_storage.initialization(
+                name="Statements about Anxiety",
+                file_paths=[".//.//Anxiety.docx"],
+                instructions="If the user asks a question on the topic of Anxiety, try to look for the answer in the files.",
             )
-        )
-        cls.assistant = await cls.async_client.beta.assistants.update(
-            assistant_id=cls.assistant.id,
-            tool_resources={"file_search": {"vector_store_ids": [cls.vector_store.id]}},
+            cls.vector_storages.append(anxiety_storage)
+        except ValueError as ve:
+            logger.info(f"Error: {ve}")
+
+        cls.config["run_instructions"] += "\n".join(
+            [vs.instructions for vs in cls.vector_storages]
         )
 
     @classmethod
@@ -194,7 +264,7 @@ class AssistantService:
                         cited_file = await cls.async_client.files.retrieve(
                             file_citation.file_id
                         )
-                        citations.append(f"[{index}] {cited_file.filename}")
+                        citations.append(cited_file.filename)
                     if index < len(citations):
                         message_content.value = message_content.value.replace(
                             annotation.text, f" [Источник: {citations[index]}]"
@@ -257,12 +327,13 @@ class AssistantService:
 
     @classmethod
     async def get_sources(cls):
-        num = cls.vector_store.file_counts
-        print(num)
-        for f in cls.vector_store: 
-            print(f.index)
-        return "100"
-    
+        ans = f"There are **{len(cls.vector_storages)}** vector storages:\n"
+        for vs in cls.vector_storages:
+            file_names = "\n\t".join(
+                [os.path.basename(file_path) for file_path in vs.file_paths]
+            )
+            ans += f"name: __{vs.name}__\n\t" + file_names
+        return ans
 
     @classmethod
     async def clear_context(cls, user_id: int):

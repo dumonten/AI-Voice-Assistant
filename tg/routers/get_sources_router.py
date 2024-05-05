@@ -9,10 +9,10 @@ from utils import Strings
 router = Router()
 
 
-@router.message(Command("get_sorces"))
-async def cmd_get_sorces(message: Message):
+@router.message(Command("get_sources"))
+async def cmd_get_sources(message: Message):
     """
-    Handles the "/get_sources" command by getting num of file sources of the assistant.
+    Handles the "/get_sources" command by getting the number of file sources of the assistant.
 
     Parameters:
     - message (Message): The message object received from the user.
@@ -20,7 +20,6 @@ async def cmd_get_sorces(message: Message):
     Returns:
     - None
     """
-
     AnalyticsService.track_event(
         user_id=message.from_user.id, event_type=EventType.GetSourcesCommand
     )
@@ -28,4 +27,3 @@ async def cmd_get_sorces(message: Message):
     response = await AssistantService.get_sources()
 
     await message.reply(response)
-
