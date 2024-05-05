@@ -1,6 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor
-
 from analytics.amplitude import AmplitudeLogger
+from config import settings
 
 
 class AnalyticsService:
@@ -8,7 +7,7 @@ class AnalyticsService:
     Manages assistant operations with Amplitude analytics using a thread pool.
     """
 
-    executor = ThreadPoolExecutor(max_workers=5)
+    executor = settings.thread_executor
 
     tracker = AmplitudeLogger()
 

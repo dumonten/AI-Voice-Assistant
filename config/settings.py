@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor
 
 from aiogram import Bot
 from openai import AsyncOpenAI
@@ -41,6 +42,19 @@ class Settings(BaseSettings):
         if not hasattr(self, "_async_client"):
             self._async_client = AsyncOpenAI(api_key=self.OPENAI_KEY)
         return self._async_client
+
+    @property
+    def thread_executor(self) -> ThreadPoolExecutor:
+        """
+        Returns a ThreadPoolExecutor instance for concurrent task execution.
+
+        Returns:
+        - ThreadPoolExecutor: An instance of ThreadPoolExecutor configured with 5 worker threads.
+        """
+
+        if not hasattr(self, "_thread_executor"):
+            self._thread_executor = ThreadPoolExecutor(max_workers=5)
+        return self._thread_executor
 
     class Config:
         """
