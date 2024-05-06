@@ -34,7 +34,12 @@ async def main():
     - None
     """
 
-    redis = Redis.from_url(settings.REDIS_URL)
+    redis = Redis(
+        host=settings.REDISHOST,
+        username=settings.REDISUSER,
+        password=settings.REDISPASSWORD,
+        port=settings.REDISPORT,
+    )
     dp = Dispatcher(storage=RedisStorage(redis=redis))
 
     bot = settings.bot

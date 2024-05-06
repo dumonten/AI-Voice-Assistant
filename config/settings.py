@@ -16,7 +16,10 @@ class Settings(BaseSettings):
     OPENAI_KEY: str = Field(env="OPENAI_KEY")
     AMPLITUDE_KEY: str = Field(env="AMPLITUDE_KEY")
     DATABASE_URL: str = Field(env="DATABASE_URL")
-    REDIS_URL: str = Field(env="REDIS_URL")
+    REDISHOST: str = Field(env="REDISHOST")
+    REDISPASSWORD: str = Field(env="REDISPASSWORD")
+    REDISPORT: str = Field(env="REDISPORT")
+    REDISUSER: str = Field(env="REDISUSER")
 
     @property
     def bot(self) -> Bot:

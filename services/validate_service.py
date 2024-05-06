@@ -117,7 +117,7 @@ class ValidateService:
             arguments_dict = json.loads(output.function.arguments)
             return arguments_dict["is_correct"]
         except Exception as e:
-            logger.info(
+            logger.error(
                 f"Unable to generate ChatCompletion response in ValidateService. Exception: {e}"
             )
             return False
