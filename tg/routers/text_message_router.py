@@ -17,7 +17,7 @@ router = Router()
 bot = settings.bot
 
 
-@router.message(ThreadIdState.thread, F.text)
+@router.message(ThreadIdState.thread_id, F.text)
 async def text_message(message: Message, state: FSMContext):
     """
     Handles text messages by sending a wait message to the user, processing the text with the AssistantService,
@@ -46,7 +46,7 @@ async def text_message(message: Message, state: FSMContext):
         )
 
         response = await AssistantService.request(
-            message.from_user.id, data["thread"], message.text
+            message.from_user.id, data["thread_id"], message.text
         )
 
         await message.answer(response)
