@@ -2,7 +2,9 @@ import asyncio
 from asyncio.exceptions import CancelledError
 
 from aiogram import Dispatcher
+from aiogram.fsm.storage.redis import RedisStorage
 from loguru import logger
+from redis.asyncio import Redis
 
 from config import settings
 from services import (
@@ -32,7 +34,8 @@ async def main():
     - None
     """
 
-    dp = Dispatcher()
+    redis = Redis.from_url(settings.REDIS_URL)
+    dp = Dispatcher(storage=RedisStorage(redis=redis))
 
     bot = settings.bot
     async_client = settings.async_client

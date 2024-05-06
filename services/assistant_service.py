@@ -131,8 +131,6 @@ class AssistantService:
 
     assistant = None
 
-    threads = {}
-
     vector_storages = []
 
     @classmethod
@@ -184,11 +182,10 @@ class AssistantService:
         """
 
         thread = await cls.async_client.beta.threads.create()
-        cls.threads[user_id] = thread.id
         return thread.id
 
     @classmethod
-    async def request(cls, user_id: int, prompt: str) -> str:
+    async def request(cls, user_id: int, thread_id: str, prompt: str) -> str:
         """
         Sends a prompt to the assistant and retrieves the response.
 
@@ -207,11 +204,6 @@ class AssistantService:
             raise ValueError(
                 "async_client must be initialized before calling speech_to_text."
             )
-
-        if user_id not in cls.threads:
-            await cls.create_thread(user_id)
-
-        thread_id = cls.threads[user_id]
 
         user_message = await cls.async_client.beta.threads.messages.create(
             thread_id=thread_id, role="user", content=prompt

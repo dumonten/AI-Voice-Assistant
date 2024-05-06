@@ -1,4 +1,4 @@
-from analytics.amplitude import AmplitudeLogger
+from analytics.amplitude_logger import AmplitudeLogger
 from config import settings
 
 
