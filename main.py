@@ -35,10 +35,10 @@ async def main():
     """
 
     redis = Redis(
-        host=settings.REDISHOST,
-        username=settings.REDISUSER,
-        password=settings.REDISPASSWORD,
-        port=settings.REDISPORT,
+        host=settings.REDISHOST if settings.REDISHOST != "NoValue" else "redis",
+        username=settings.REDISUSER if settings.REDISUSER != "NoValue" else None,
+        password=settings.REDISPASSWORD if settings.REDISPASSWORD != "NoValue" else None,
+        port=settings.REDISPORT if settings.REDISPORT != "NoValue" else 6379,
     )
     dp = Dispatcher(storage=RedisStorage(redis=redis))
 
